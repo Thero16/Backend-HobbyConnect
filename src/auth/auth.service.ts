@@ -3,6 +3,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsuarioService } from '../usuario/usuario.service';
 import * as bcrypt from 'bcrypt';
+import { UserResponseDto } from '../usuario/dto/user-response.dto'; // Importamos el DTO
 
 @Injectable()
 export class AuthService {
@@ -20,8 +21,19 @@ export class AuthService {
 
     const payload = { sub: usuario.id, correo: usuario.correo };
 
+    // Creamos la respuesta usando el DTO
+    const usuarioResponse: UserResponseDto = {
+      id: usuario.id,
+      nombre: usuario.nombre,
+      correo: usuario.correo,
+      descripcion: usuario.descripcion,
+      fotoUrl: usuario.fotoUrl,  
+      hobbies: usuario.hobbies,
+    };
+
     return {
       access_token: this.jwtService.sign(payload),
+      usuario: usuarioResponse,
     };
   }
 }
