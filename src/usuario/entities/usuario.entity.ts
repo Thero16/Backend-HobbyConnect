@@ -5,22 +5,24 @@ export class Usuario {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({nullable:false})
+    @Column({ nullable: false })
     nombre: string;
 
-    @Column({nullable:false})
+    @Column({ nullable: false })
     correo: string;
 
-    @Column({nullable:false})
+    @Column({ nullable: false })
     contrasena: string;
 
-    @Column({nullable: true})
+    @Column({ nullable: true })
     descripcion: string;
 
-    @Column({nullable: true})
-    fotoUrl: string
+    @Column({ nullable: true })
+    fotoUrl: string;
 
-    @Column({type: Date, nullable: false})
+    @Column({ type: Date, nullable: false })
     fechaRegistro: Date;
 
+    @Column("simple-array", { nullable: true })
+    hobbies: string[]; 
 }
