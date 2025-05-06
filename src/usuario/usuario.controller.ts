@@ -37,4 +37,13 @@ export class UsuarioController {
   remove(@Param('id') id: string) {
     return this.usuarioService.remove(id);
   }
+
+  //Agrega un nuevo hobby por ID
+  @Patch(':id/hobbies')
+  agregarHobby(
+    @Param('id') id: string,
+    @Body('hobby') hobby: string,
+  ) {
+    return this.usuarioService.agregarHobby(id, hobby);
+  }
 }

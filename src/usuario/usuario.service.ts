@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Usuario } from './entities/usuario.entity';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsuarioService {
@@ -13,19 +13,17 @@ export class UsuarioService {
     private readonly usuarioRepository: Repository<Usuario>,
   ) {}
 
+  async create(createUsuarioDto: CreateUsuarioDto): Promise<Usuario> {
+    const hashedPassword = await bcrypt.hash(createUsuarioDto.contrasena, 10);
 
-async create(createUsuarioDto: CreateUsuarioDto): Promise<Usuario> {
-  const hashedPassword = await bcrypt.hash(createUsuarioDto.contrasena, 10);
+    const usuario = this.usuarioRepository.create({
+      ...createUsuarioDto,
+      contrasena: hashedPassword,
+      fechaRegistro: new Date(),
+    });
 
-  const usuario = this.usuarioRepository.create({
-    ...createUsuarioDto,
-    contrasena: hashedPassword,
-    fechaRegistro: new Date(),
-  });
-
-  return this.usuarioRepository.save(usuario);
-}
-
+    return this.usuarioRepository.save(usuario);
+  }
 
   async findAll(): Promise<Usuario[]> {
     return this.usuarioRepository.find();
@@ -50,9 +48,21 @@ async create(createUsuarioDto: CreateUsuarioDto): Promise<Usuario> {
     await this.usuarioRepository.remove(usuario);
   }
 
-  
-  async findByCorreo(correo: string) {
-  return this.usuarioRepository.findOne({ where: { correo } });
-}
+  async findByCorreo(correo: string): Promise<Usuario | null> {
+    return this.usuarioRepository.findOne({ where: { correo } });
+  }
 
+  async agregarHobby(id: string, nuevoHobby: string): Promise<Usuario> {
+    const usuario = await this.findOne(id);
+    
+    if (!usuario.hobbies) {
+      usuario.hobbies = [];
+    }
+
+    if (!usuario.hobbies.includes(nuevoHobby)) {
+      usuario.hobbies.push(nuevoHobby);
+    }
+
+    return this.usuarioRepository.save(usuario);
+  }
 }
