@@ -13,9 +13,9 @@ export class CreateComunidadDto {
   @IsNotEmpty()
   categoria: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  creada_por: string;
+  creada_por?: string;
 
   @IsDateString()
   fecha_creacion: string;

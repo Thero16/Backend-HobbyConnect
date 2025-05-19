@@ -1,9 +1,6 @@
 import { IsString, IsNotEmpty, IsDateString, IsOptional } from 'class-validator';
 
 export class CreatePublicacionDto {
-  @IsString()
-  @IsNotEmpty()
-  usuario_id: string;
 
   @IsString()
   @IsNotEmpty()
@@ -13,10 +10,12 @@ export class CreatePublicacionDto {
   @IsNotEmpty()
   contenido: string;
 
-  @IsDateString()
-  fecha_publicacion: string;
 
   @IsOptional()
   @IsDateString()
   fecha_edicion?: string;
+
+  usuario_id?: string;
+  fecha_publicacion?: Date;
+
 } 

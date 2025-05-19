@@ -15,17 +15,23 @@ export class ComunidadService {
   async create(createComunidadDto: CreateComunidadDto): Promise<Comunidad> {
     const comunidad = this.comunidadRepository.create({
       ...createComunidadDto,
-      fecha_creacion: new Date(createComunidadDto.fecha_creacion),
+      fecha_creacion: new Date(), // Fecha actual automática
     });
     return this.comunidadRepository.save(comunidad);
   }
 
   async findAll(): Promise<Comunidad[]> {
-    return this.comunidadRepository.find({ relations: ['usuarios'] });
+    return this.comunidadRepository.find({ 
+      relations: ['usuarios', 'publicaciones'] 
+    });
   }
 
   async findOne(id: string): Promise<Comunidad> {
-    const comunidad = await this.comunidadRepository.findOne({ where: { id }, relations: ['usuarios'] });
+    const comunidad = await this.comunidadRepository.findOne({ 
+      where: { id }, 
+      relations: ['usuarios', 'publicaciones'] 
+    });
+    
     if (!comunidad) {
       throw new NotFoundException(`Comunidad con ID ${id} no encontrada`);
     }
@@ -42,4 +48,4 @@ export class ComunidadService {
     const comunidad = await this.findOne(id);
     await this.comunidadRepository.remove(comunidad);
   }
-} 
+}

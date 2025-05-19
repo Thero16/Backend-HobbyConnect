@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Publicacion } from './entities/publicacion.entity';
@@ -18,37 +18,67 @@ export class PublicacionService {
     private readonly comunidadRepository: Repository<Comunidad>,
   ) {}
 
-  async create(createDto: CreatePublicacionDto): Promise<Publicacion> {
-    const usuario = await this.usuarioRepository.findOne({ where: { id: createDto.usuario_id } });
-    const comunidad = await this.comunidadRepository.findOne({ where: { id: createDto.comunidad_id } });
-    if (!usuario) throw new NotFoundException('Usuario no encontrado');
-    if (!comunidad) throw new NotFoundException('Comunidad no encontrada');
-    const publicacion = this.publicacionRepository.create({
-      ...createDto,
-      usuario,
-      comunidad,
-      fecha_publicacion: new Date(createDto.fecha_publicacion),
-      fecha_edicion: createDto.fecha_edicion ? new Date(createDto.fecha_edicion) : null,
+  async create(createPublicacionDto: CreatePublicacionDto): Promise<Publicacion> {
+    // 1. Validación explícita del usuario_id
+    if (!createPublicacionDto.usuario_id) {
+      throw new Error('ID de usuario no proporcionado');
+    }
+  
+    // 2. Buscar usuario - versión segura que falla si no existe
+    const usuario = await this.usuarioRepository.findOneBy({ 
+      id: createPublicacionDto.usuario_id 
     });
+    if (!usuario) {
+      throw new NotFoundException(`Usuario con ID ${createPublicacionDto.usuario_id} no existe`);
+    }
+  
+    // 3. Buscar comunidad
+    const comunidad = await this.comunidadRepository.findOneBy({ 
+      id: createPublicacionDto.comunidad_id 
+    });
+    if (!comunidad) {
+      throw new NotFoundException('Comunidad no encontrada');
+    }
+  
+    // 4. Crear publicación - método alternativo seguro
+    const publicacion = new Publicacion();
+    publicacion.contenido = createPublicacionDto.contenido;
+    publicacion.usuario = usuario; // Asignación directa
+    publicacion.comunidad = comunidad;
+    publicacion.fecha_publicacion = new Date();
+  
+    // 5. Debug final
+    console.log('Usuario asignado:', publicacion.usuario.id);
+    console.log('Comunidad asignada:', publicacion.comunidad.id);
+  
     return this.publicacionRepository.save(publicacion);
   }
 
   async findAll(): Promise<Publicacion[]> {
-    return this.publicacionRepository.find({ relations: ['usuario', 'comunidad'] });
+    return this.publicacionRepository.find({ 
+      relations: ['usuario', 'comunidad'],
+      order: { fecha_publicacion: 'DESC' }
+    });
   }
 
   async findOne(id: string): Promise<Publicacion> {
-    const publicacion = await this.publicacionRepository.findOne({ where: { id }, relations: ['usuario', 'comunidad'] });
-    if (!publicacion) throw new NotFoundException('Publicacion no encontrada');
+    const publicacion = await this.publicacionRepository.findOne({ 
+      where: { id }, 
+      relations: ['usuario', 'comunidad'] 
+    });
+    if (!publicacion) throw new NotFoundException('Publicación no encontrada');
     return publicacion;
   }
 
   async update(id: string, updateDto: UpdatePublicacionDto): Promise<Publicacion> {
     const publicacion = await this.findOne(id);
-    Object.assign(publicacion, updateDto);
-    if (updateDto.fecha_edicion) {
-      publicacion.fecha_edicion = new Date(updateDto.fecha_edicion);
+    
+    // Solo actualizar campos permitidos
+    if (updateDto.contenido) {
+      publicacion.contenido = updateDto.contenido;
+      publicacion.fecha_edicion = new Date();
     }
+    
     return this.publicacionRepository.save(publicacion);
   }
 
@@ -56,4 +86,14 @@ export class PublicacionService {
     const publicacion = await this.findOne(id);
     await this.publicacionRepository.remove(publicacion);
   }
-} 
+
+  async verificarPropiedad(publicacionId: string, usuarioId: string): Promise<boolean> {
+    const publicacion = await this.publicacionRepository.findOne({
+      where: { id: publicacionId },
+      relations: ['usuario']
+    });
+    
+    if (!publicacion) throw new NotFoundException('Publicación no encontrada');
+    return publicacion.usuario.id === usuarioId;
+  }
+}
