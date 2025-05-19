@@ -5,6 +5,7 @@ import { UsuarioModule } from './usuario/usuario.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { ComunidadModule } from './comunidad/comunidad.module';
 
 
 @Module({
@@ -16,6 +17,7 @@ import { AuthModule } from './auth/auth.module';
     synchronize: true,
   }),
     UsuarioModule,
+    ComunidadModule,
     AuthModule],
   controllers: [AppController],
   providers: [AppService],

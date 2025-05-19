@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, ManyToMany } from "typeorm";
+import { Comunidad } from '../../comunidad/entities/comunidad.entity';
 
 @Entity()
 export class Usuario {
@@ -25,4 +26,7 @@ export class Usuario {
 
     @Column("simple-array", { nullable: true })
     hobbies: string[]; 
+
+    @ManyToMany(() => Comunidad, comunidad => comunidad.usuarios)
+    comunidades: Comunidad[];
 }
