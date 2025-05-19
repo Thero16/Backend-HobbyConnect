@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { ComunidadModule } from './comunidad/comunidad.module';
+import { PublicacionModule } from './publicacion/publicacion.module';
 
 
 @Module({
@@ -18,6 +19,7 @@ import { ComunidadModule } from './comunidad/comunidad.module';
   }),
     UsuarioModule,
     ComunidadModule,
+    PublicacionModule,
     AuthModule],
   controllers: [AppController],
   providers: [AppService],

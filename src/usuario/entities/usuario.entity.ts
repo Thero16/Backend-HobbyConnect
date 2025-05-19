@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToMany } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, ManyToMany, OneToMany } from "typeorm";
 import { Comunidad } from '../../comunidad/entities/comunidad.entity';
+import { Publicacion } from '../../publicacion/entities/publicacion.entity';
 
 @Entity()
 export class Usuario {
@@ -29,4 +30,7 @@ export class Usuario {
 
     @ManyToMany(() => Comunidad, comunidad => comunidad.usuarios)
     comunidades: Comunidad[];
+
+    @OneToMany(() => Publicacion, publicacion => publicacion.usuario)
+    publicaciones: Publicacion[];
 }

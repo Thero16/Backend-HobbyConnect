@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 import { Usuario } from '../../usuario/entities/usuario.entity';
+import { Publicacion } from '../../publicacion/entities/publicacion.entity';
 
 @Entity()
 export class Comunidad {
@@ -24,4 +25,7 @@ export class Comunidad {
   @ManyToMany(() => Usuario, usuario => usuario.comunidades, { cascade: true })
   @JoinTable()
   usuarios: Usuario[];
+
+  @OneToMany(() => Publicacion, publicacion => publicacion.comunidad)
+  publicaciones: Publicacion[];
 } 
